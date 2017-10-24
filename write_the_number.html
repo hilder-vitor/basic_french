@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>One-column fixed-width responsive layout</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="Description" lang="en" content="ADD SITE DESCRIPTION">
+		<meta name="author" content="ADD AUTHOR INFORMATION">
+		<meta name="robots" content="index, follow">
+
+		<!-- icons -->
+		<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+		<link rel="shortcut icon" href="favicon.ico">
+
+		<!-- Override CSS file - add your own CSS rules -->
+		<link rel="stylesheet" href="assets/css/styles.css">
+
+<script>
+numbers = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf", "vingt", "vingt-et-un", "vingt-deux", "vingt-trois", "vingt-quatre", "vingt-cinq", "vingt-six", "vingt-sept", "vingt-huit", "vingt-neuf", "trente", "trente-et-un", "trente-deux", "trente-trois", "trente-quatre", "trente-cinq", "trente-six", "trente-sept", "trente-huit", "trente-neuf", "quarante", "quarante-et-un", "quarante-deux", "quarante-trois", "quarante-quatre", "quarante-cinq", "quarante-six", "quarante-sept", "quarante-huit", "quarante-neuf", "cinquante", "cinquante-et-un", "cinquante-deux", "cinquante-trois", "cinquante-quatre", "cinquante-cinq", "cinquante-six", "cinquante-sept", "cinquante-huit", "cinquante-neuf", "soixante", "soixante-et-un", "soixante-deux", "soixante-trois", "soixante-quatre", "soixante-cinq", "soixante-six", "soixante-sept", "soixante-huit", "soixante-neuf", "soixante-dix", "soixante-et-onze", "soixante-douze", "soixante-treize", "soixante-quatorze", "soixante-quinze", "soixante-seize", "soixante-dix-sept", "soixante-dix-huit", "soixante dix-neuf", "quatre-vingts", "quatre-vingt-un", "quatre-vingt-deux", "quatre-vingt-trois", "quatre-vingt-quatre", "quatre-vingt-cinq", "quatre-vingt-six", "quatre-vingt-sept", "quatre-vingt-huit", "quatre-vingt-neuf", "quatre-vingt-dix", "quatre-vingt-onze", "quatre-vingt-douze", "quatre-vingt-treize", "quatre-vingt-quatorze", "quatre-vingt-quinze", "quatre-vingt-seize", "quatre-vingt-dix-sept", "quatre-vingt-dix-huit", "quatre-vingt-dix-neuf", "cent", "cent-un", "cent-deux"]
+
+current_printed_number = 0
+
+String.prototype.capitalize = function() {
+	return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+function check_number_spelling(written_number, expected_number){
+	written_number = document.getElementById("typed_number").value;
+	// equal even if start by same letters but one in lowercase and other in uppercase
+	if (numbers[current_printed_number].capitalize() == written_number.capitalize()){
+		elt_feedback = document.getElementById("feedback_positive");
+		elt_feedback.style.visibility = "visible";
+		elt_feedback.innerHTML = "<p> Très bien ! C'est correct ! </p>";
+	}else {
+		elt_feedback = document.getElementById("feedback_negative");
+		elt_feedback.style.visibility = "visible";
+		elt_feedback.innerHTML = "<p> Faux ! Le nombre correct est <b>" + numbers[current_printed_number] + "</b>.</p>";
+	}
+}
+
+function print_new_challeng(){
+	document.getElementById("feedback_negative").style.visibility = "hidden";
+	document.getElementById("feedback_negative").innerHTML = "";
+	document.getElementById("feedback_positive").style.visibility = "hidden";
+	document.getElementById("feedback_positive").innerHTML = "";
+
+	current_printed_number = Math.floor(Math.random() * 103);
+	document.getElementById("numberOrdinal").innerHTML = current_printed_number;
+}
+
+</script>
+
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1 class="header-heading">Français basique</h1>
+			</div>
+			<div class="nav-bar">
+				<ul class="nav">
+					<li><a href="#">Nav item 1</a></li>
+					<li><a href="#">Nav item 2</a></li>
+					<li><a href="#">Nav item 3</a></li>
+				</ul>
+			</div>
+			<div class="content">
+				<div class="main">
+
+					<h1>Les nombres</h1>
+					<hr>
+
+					<h4> Tapez le nombre suivant:
+						<b id="numberOrdinal"> </b>
+					</h4>
+					<input type="text" id="typed_number"> </input>
+
+					<div id="feedback_positive" style="background-color:LightGreen; width: 250px; padding:5px; visibility:hidden">
+					</div>
+					<div id="feedback_negative" style="background-color:Crimson; color:white; width:450px; padding:5px;visibility:hidden; margin:5px">
+					</div>
+					
+
+					<p>
+					<button href="#" class="btn" onclick="print_new_challeng()">Nouveau</button>
+					<button href="#" class="btn" onclick="check_number_spelling()">Vérifier</button></p>
+					<hr>
+				</div>
+			</div>
+			<div class="footer">
+				&copy; Copyright 2015
+			</div>
+		</div>
+
+		<script>
+			print_new_challeng()
+		</script>
+	</body>
+</html>
