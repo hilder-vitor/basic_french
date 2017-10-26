@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>One-column fixed-width responsive layout</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="Description" lang="en" content="ADD SITE DESCRIPTION">
+		<meta name="author" content="ADD AUTHOR INFORMATION">
+		<meta name="robots" content="index, follow">
+
+		<!-- icons -->
+		<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+		<link rel="shortcut icon" href="favicon.ico">
+
+		<!-- Override CSS file - add your own CSS rules -->
+		<link rel="stylesheet" href="assets/css/styles.css">
+
+<script>
+numbers = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf", "vingt", "vingt-et-un", "vingt-deux", "vingt-trois", "vingt-quatre", "vingt-cinq", "vingt-six", "vingt-sept", "vingt-huit", "vingt-neuf", "trente", "trente-et-un", "trente-deux", "trente-trois", "trente-quatre", "trente-cinq", "trente-six", "trente-sept", "trente-huit", "trente-neuf", "quarante", "quarante-et-un", "quarante-deux", "quarante-trois", "quarante-quatre", "quarante-cinq", "quarante-six", "quarante-sept", "quarante-huit", "quarante-neuf", "cinquante", "cinquante-et-un", "cinquante-deux", "cinquante-trois", "cinquante-quatre", "cinquante-cinq", "cinquante-six", "cinquante-sept", "cinquante-huit", "cinquante-neuf", "soixante", "soixante-et-un", "soixante-deux", "soixante-trois", "soixante-quatre", "soixante-cinq", "soixante-six", "soixante-sept", "soixante-huit", "soixante-neuf", "soixante-dix", "soixante-et-onze", "soixante-douze", "soixante-treize", "soixante-quatorze", "soixante-quinze", "soixante-seize", "soixante-dix-sept", "soixante-dix-huit", "soixante dix-neuf", "quatre-vingts", "quatre-vingt-un", "quatre-vingt-deux", "quatre-vingt-trois", "quatre-vingt-quatre", "quatre-vingt-cinq", "quatre-vingt-six", "quatre-vingt-sept", "quatre-vingt-huit", "quatre-vingt-neuf", "quatre-vingt-dix", "quatre-vingt-onze", "quatre-vingt-douze", "quatre-vingt-treize", "quatre-vingt-quatorze", "quatre-vingt-quinze", "quatre-vingt-seize", "quatre-vingt-dix-sept", "quatre-vingt-dix-huit", "quatre-vingt-dix-neuf", "cent"]
+
+current_printed_number = 0
+
+MAX_NUMBER = numbers.length
+
+N = 15
+M = 20
+
+String.prototype.capitalize = function() {
+	return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+function check_number_spelling(written_number, expected_number){
+	written_number = document.getElementById("typed_number").value;
+	// equal even if start by same letters but one in lowercase and other in uppercase
+	if (numbers[current_printed_number].capitalize() == written_number.capitalize()){
+		elt_feedback = document.getElementById("feedback_positive");
+		elt_feedback.style.visibility = "visible";
+		elt_feedback.innerHTML = "<p> Très bien ! C'est correct ! </p>";
+	}else {
+		elt_feedback = document.getElementById("feedback_negative");
+		elt_feedback.style.visibility = "visible";
+		elt_feedback.innerHTML = "<p> Faux ! Le nombre correct est <b>" + numbers[current_printed_number] + "</b>.</p>";
+	}
+}
+
+function print_new_challeng(){
+	document.getElementById("feedback_negative").style.visibility = "hidden";
+	document.getElementById("feedback_negative").innerHTML = "";
+	document.getElementById("feedback_positive").style.visibility = "hidden";
+	document.getElementById("feedback_positive").innerHTML = "";
+
+	current_printed_number = Math.floor(Math.random() * 103);
+	document.getElementById("numberOrdinal").innerHTML = current_printed_number;
+}
+
+function create_matrix(n_rows, n_cols, default_val){
+	var mat = new Array(n_rows);
+	for (var i = 0; i < N; i++) {
+		mat[i] = new Array(n_cols);
+		for (var j = 0; j < M; j++)
+			mat[i][j] = default_val
+	}
+	return mat
+}
+
+var selected_values = create_matrix(N, M, false)
+var letters_table = create_matrix(N, M, 0)
+
+function put_random_number_on_table(table, nrows, ncols){
+	num = Math.floor(Math.random() * MAX_NUMBER);
+
+	i = Math.floor(Math.random() * nrows);
+	j = Math.floor(Math.random() * ncols);
+	b = Math.floor(Math.random() * 2);
+
+	str_num = numbers[num].toUpperCase()
+	word_size = str_num.length
+
+	was_inserted = -1	
+	if (1 == b){ // horizontally
+		if (j + word_size < ncols){
+			occuped = false
+
+			for (k = j; k < ncols && k-j < str_num.length; k++){
+				if (0 != table[i][k])
+					occuped = true
+			}
+			if (!occuped){
+				for (k = j; k < ncols && k-j < str_num.length; k++){
+					table[i][k] = str_num.charAt(k-j)	
+				}
+				was_inserted = num
+			}
+		}
+	}else{  // vertically
+		if (i + word_size < nrows){
+			occuped = false
+
+			for (k = i; k < nrows && k-i < str_num.length; k++){
+				if (0 != table[i][k])
+					occuped = true
+			}
+			if (!occuped){
+				for (k = i; k < nrows && k-i < str_num.length; k++){
+					table[k][j] = str_num.charAt(k-i)
+				}
+				was_inserted = num
+			}
+		}
+	}
+	return was_inserted
+}
+
+function random_letter(){
+	r = Math.floor(Math.random() * 28);
+	if (r >= 26)
+		return "-"
+	return String.fromCharCode(65 + r)
+}
+
+function select_cell(i, j){
+	cell = document.getElementById(i + "_" + j)
+	if (selected_values[i][j]){
+		cell.style.background="white"
+		cell.style.color = "black"
+	}else{
+		cell.style.background="gray"
+		cell.style.color = "white"
+	}
+	selected_values[i][j] = !selected_values[i][j]
+}
+
+function switch_zeros_to_random_letters(table, nrows, ncols){
+	for (var i = 0; i < nrows; i++) {
+		for (var j = 0; j < ncols; j++)
+			if (0 == table[i][j])
+				table[i][j] = random_letter()
+	}
+}
+
+function create_html_table(char_table, n, m){
+	s = "<table class='table'>"
+	for (i = 0; i < n; i++){
+		s += "<tr>"
+		for (j = 0; j < m; j++){
+			s += "<td id='" + i + "_" + j + "' onclick='select_cell("+i+","+j+")'> " + char_table[i][j] + "</td>" 
+		}
+		s += "</tr>"
+	}
+	s += "</table>"
+	
+	document.getElementById("div_table").innerHTML = s;
+}
+
+inserted_numbers = []
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+inserted_numbers.push(put_random_number_on_table(letters_table, N, M))
+alert(inserted_numbers)
+switch_zeros_to_random_letters(letters_table, N, M)
+
+</script>
+
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1 class="header-heading">Français basique</h1>
+			</div>
+			<div class="nav-bar">
+				<ul class="nav">
+					<li><a href="#">Nav item 1</a></li>
+					<li><a href="#">Nav item 2</a></li>
+					<li><a href="#">Nav item 3</a></li>
+				</ul>
+			</div>
+			<div class="content">
+				<div class="main">
+
+					<h1>Les nombres</h1>
+					<hr>
+
+					<h4> Tapez le nombre suivant:
+						<b id="numberOrdinal"> </b>
+					</h4>
+					<input type="text" id="typed_number"> </input>
+
+					<div id="feedback_positive" style="background-color:LightGreen; width: 250px; padding:5px; visibility:hidden">
+					</div>
+					<div id="feedback_negative" style="background-color:Crimson; color:white; width:450px; padding:5px;visibility:hidden; margin:5px">
+					</div>
+					
+					<div id="div_table" style="font-size:10pt; padding:5px; margin:5px">
+					</div>
+
+					<p>
+					<button href="#" class="btn" onclick="create_html_table(letters_table, N, M)">Nouveau</button>
+					<button href="#" class="btn" onclick="alert(create_expression())">Vérifier</button></p>
+					<hr>
+				</div>
+			</div>
+			<div class="footer">
+				&copy; Copyright 2015
+			</div>
+		</div>
+
+		<script>
+			print_new_challeng()
+		</script>
+	</body>
+</html>
