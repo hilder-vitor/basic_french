@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>One-column fixed-width responsive layout</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="Description" lang="en" content="ADD SITE DESCRIPTION">
+		<meta name="author" content="ADD AUTHOR INFORMATION">
+		<meta name="robots" content="index, follow">
+
+		<!-- icons -->
+		<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+		<link rel="shortcut icon" href="favicon.ico">
+
+		<!-- Override CSS file - add your own CSS rules -->
+		<link rel="stylesheet" href="assets/css/styles.css">
+
+<script>
+numbers = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf", "vingt", "vingt-et-un", "vingt-deux", "vingt-trois", "vingt-quatre", "vingt-cinq", "vingt-six", "vingt-sept", "vingt-huit", "vingt-neuf", "trente", "trente-et-un", "trente-deux", "trente-trois", "trente-quatre", "trente-cinq", "trente-six", "trente-sept", "trente-huit", "trente-neuf", "quarante", "quarante-et-un", "quarante-deux", "quarante-trois", "quarante-quatre", "quarante-cinq", "quarante-six", "quarante-sept", "quarante-huit", "quarante-neuf", "cinquante", "cinquante-et-un", "cinquante-deux", "cinquante-trois", "cinquante-quatre", "cinquante-cinq", "cinquante-six", "cinquante-sept", "cinquante-huit", "cinquante-neuf", "soixante", "soixante-et-un", "soixante-deux", "soixante-trois", "soixante-quatre", "soixante-cinq", "soixante-six", "soixante-sept", "soixante-huit", "soixante-neuf", "soixante-dix", "soixante-et-onze", "soixante-douze", "soixante-treize", "soixante-quatorze", "soixante-quinze", "soixante-seize", "soixante-dix-sept", "soixante-dix-huit", "soixante dix-neuf", "quatre-vingts", "quatre-vingt-un", "quatre-vingt-deux", "quatre-vingt-trois", "quatre-vingt-quatre", "quatre-vingt-cinq", "quatre-vingt-six", "quatre-vingt-sept", "quatre-vingt-huit", "quatre-vingt-neuf", "quatre-vingt-dix", "quatre-vingt-onze", "quatre-vingt-douze", "quatre-vingt-treize", "quatre-vingt-quatorze", "quatre-vingt-quinze", "quatre-vingt-seize", "quatre-vingt-dix-sept", "quatre-vingt-dix-huit", "quatre-vingt-dix-neuf", "cent"]
+
+current_printed_number = 0
+
+MAX_NUMBER = numbers.length
+
+// dimensions of the table shown on the page
+N = 15
+M = 18
+
+last_selected_i = -1
+last_selected_j = -1
+
+var selected_values = create_matrix(N, M, false) // (i, j) --> true if cell i,j is selected
+var letters_table = create_matrix(N, M, 0) // matrix with the same letters the table shown on the page has
+
+// each possition has a hash
+//    {i:<row>, j:<col>, horizontally:<true or false>, num:<int>
+// with information about one number inserted in the table
+inserted_numbers = []
+
+function create_matrix(n_rows, n_cols, default_val){
+	var mat = new Array(n_rows);
+	for (var i = 0; i < N; i++) {
+		mat[i] = new Array(n_cols);
+		for (var j = 0; j < M; j++)
+			mat[i][j] = default_val
+	}
+	return mat
+}
+
+function may_put_the_number(table, i, j, nrows, ncols, horizontally, str_num){
+	word_size = str_num.length
+	if (horizontally){
+		if (word_size >= ncols - j)
+			return false;
+		for (k = j; k-j < str_num.length; k++){
+			if (0 != table[i][k])
+				return false
+		}
+		return true		
+	}
+
+	/* vertically */
+	if (word_size >= nrows - i)
+		return false;
+	for (k = i; k-i < str_num.length; k++){
+		if (0 != table[k][j])
+			return false
+	}
+	
+	return true
+}
+
+function put_random_number_on_table(table, nrows, ncols){
+	num = Math.floor(Math.random() * MAX_NUMBER);
+
+	i = Math.floor(Math.random() * nrows);
+	j = Math.floor(Math.random() * ncols);
+	b = Math.floor(Math.random() * 2);
+
+	str_num = numbers[num].toUpperCase()
+	word_size = str_num.length
+
+	was_inserted = -1	
+	if (1 == b){ // horizontally
+		if (may_put_the_number(table, i, j, nrows, ncols, b, str_num)){
+			for (k = j; k-j < str_num.length; k++){
+				table[i][k] = str_num.charAt(k-j)	
+			}
+			was_inserted = num
+		}
+	}else{  // vertically
+		if (may_put_the_number(table, i, j, nrows, ncols, b, str_num)){
+			for (k = i; k-i < str_num.length; k++){
+				table[k][j] = str_num.charAt(k-i)
+			}
+			was_inserted = num
+		}
+	}
+	return {i: i, j: j, horizontally: (1 == b), num: was_inserted}
+}
+
+function random_letter(){
+	r = Math.floor(Math.random() * 28);
+	if (r >= 26)
+		return "-"
+	return String.fromCharCode(65 + r)
+}
+
+
+function select_sub_col(col, start_i, end_i){
+	for (i = start_i; i < end_i; i++){
+		cell = document.getElementById(i + "_" + col)
+		cell.style.background="gray"
+		cell.style.color = "white"
+		selected_values[i][col] = true
+	}
+}
+
+function select_sub_row(row, start_j, end_j){
+	for (j = start_j; j < end_j; j++){
+		cell = document.getElementById(row + "_" + j)
+		cell.style.background="gray"
+		cell.style.color = "white"
+		selected_values[row][j] = true
+	}
+}
+
+function select_cell(i, j){
+	cell = document.getElementById(i + "_" + j)
+	if (selected_values[i][j]){
+		cell.style.background="white"
+		cell.style.color = "black"
+		last_selected_i = -1
+	}else{
+		cell.style.background="gray"
+		cell.style.color = "white"
+
+		if (last_selected_i >= 0){
+			if (last_selected_i == i){ // last selected cell is in the same row
+				select_sub_row(i, last_selected_j, j)
+				last_selected_i = -1
+			}else if (last_selected_j == j){
+				select_sub_col(j, last_selected_i, i)
+				last_selected_i = -1
+			}else{
+				last_selected_i = i
+				last_selected_j = j
+			}
+		}else{
+			last_selected_i = i
+			last_selected_j = j
+		}
+	}
+	selected_values[i][j] = !selected_values[i][j]
+}
+
+function switch_zeros_to_random_letters(table, nrows, ncols){
+	for (var i = 0; i < nrows; i++) {
+		for (var j = 0; j < ncols; j++)
+			if (0 == table[i][j])
+				table[i][j] = random_letter()
+	}
+}
+
+function create_html_table(char_table, n, m){
+	s = "<table class='table'>"
+	for (i = 0; i < n; i++){
+		s += "<tr>"
+		for (j = 0; j < m; j++){
+			s += "<td id='" + i + "_" + j + "' onclick='select_cell("+i+","+j+")'> " + char_table[i][j] + "</td>" 
+		}
+		s += "</tr>"
+	}
+	s += "</table>"
+	
+	document.getElementById("div_table").innerHTML = s;
+}
+
+function verify_if_number_is_selected(i, j, horizontally, str_num){
+	var word_size = str_num.length
+	var ok = true
+	if (horizontally){
+		for (k = j; k < j+word_size; k++)
+			if (!selected_values[i][k]){
+				ok = false
+				break
+			}
+
+		if (ok)
+			color = "green"
+		else
+			color = "red"
+		for (k = j; k < j+word_size; k++){
+			cell = document.getElementById(i + "_" + k)
+			cell.style.color = color
+			cell.style.fontWeight = "bold"
+		}
+	}else{ // vertically
+		for (k = i; k < i+word_size; k++)
+			if (!selected_values[k][j]){
+				ok = false
+				break
+			}
+
+		if (ok)
+			color = "green"
+		else
+			color = "red"
+		for (k = i; k < i+word_size; k++){
+			cell = document.getElementById(k + "_" + j)
+			cell.style.color = color
+			cell.style.fontWeight = "bold"
+		}
+	}
+	return ok
+}
+
+function verify_table(){
+	var ok = true
+	for (i = 0; i < inserted_numbers.length; i++){
+		h = inserted_numbers[i]
+		_ok = verify_if_number_is_selected(h.i, h.j, h.horizontally, numbers[h.num])
+		ok = ok && _ok
+	}
+	console.log(selected_values)
+	for (i = 0; i < N; i++){
+		for (j = 0; j < M; j++){
+			if (selected_values[i][j]){ // if some wrong cell was selected
+				cell = document.getElementById(i + "_" + j)
+				if (cell.style.fontWeight != "bold"){
+					cell.style.color = "red"
+					cell.style.fontWeight = "bold"
+					ok = false
+				}
+			}
+		}
+	}
+	if (ok){
+		document.getElementById("feedback_positive").style.visibility = "visible";
+		document.getElementById("feedback_positive").innerHTML = "<p> Très bien ! C'est correct ! </p>"
+	}else{
+		document.getElementById("feedback_negative").style.visibility = "visible";
+		document.getElementById("feedback_negative").innerHTML = "<p> Faux ! Vérifiez la réponse s'il vous plaît. </p>"
+	}
+}
+
+</script>
+
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1 class="header-heading">Français basique</h1>
+			</div>
+			<div class="nav-bar">
+				<ul class="nav">
+					<li><a href="write_the_number.html">Écrivez le nombre</a></li>
+					<li><a href="#">Cherchez le nombre</a></li>
+				</ul>
+			</div>
+			<div class="content">
+				<div class="main">
+
+					<h1>Les nombres</h1>
+					<hr>
+
+
+					<div id="chosen_numbers">
+						<b> Trouvez les nombres suivants: </b>
+					</div>
+				
+					<div id="div_table" style="font-size:10pt; padding:5px; margin:2px">
+					</div>
+
+					<p>
+					<div id="feedback_positive" style="background-color:LightGreen; color:black; width:450px; padding:5px;visibility:hidden;">
+					</div>
+			
+					<div id="feedback_negative" style="background-color:Crimson; color:white; width:450px; padding:5px;visibility:hidden;">
+					</div>
+					<button href="#" class="btn" onclick="location.reload();">Nouveau</button>
+					<button href="#" class="btn" onclick="verify_table()">Vérifier</button></p>
+					<hr>
+	
+				</div>
+			</div>
+			<div class="footer">
+				&copy; Copyright 2015
+			</div>
+		</div>
+
+		<script>
+			div_numbers = document.getElementById("chosen_numbers")
+			for (var k = 0; k < 100 && inserted_numbers.length < 7; k++){
+				ins_num = put_random_number_on_table(letters_table, N, M)
+				if (-1 != ins_num.num){
+					inserted_numbers.push(ins_num)
+					div_numbers.innerHTML += ins_num.num + " | "
+				}
+			}
+
+			switch_zeros_to_random_letters(letters_table, N, M)
+			create_html_table(letters_table, N, M)
+
+		</script>
+	</body>
+</html>
