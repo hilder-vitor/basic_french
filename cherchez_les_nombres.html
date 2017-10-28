@@ -23,11 +23,20 @@ current_printed_number = 0
 
 MAX_NUMBER = numbers.length
 
+// dimensions of the table shown on the page
 N = 15
 M = 18
 
 last_selected_i = -1
 last_selected_j = -1
+
+var selected_values = create_matrix(N, M, false) // (i, j) --> true if cell i,j is selected
+var letters_table = create_matrix(N, M, 0) // matrix with the same letters the table shown on the page has
+
+// each possition has a hash
+//    {i:<row>, j:<col>, horizontally:<true or false>, num:<int>
+// with information about one number inserted in the table
+inserted_numbers = []
 
 function create_matrix(n_rows, n_cols, default_val){
 	var mat = new Array(n_rows);
@@ -38,9 +47,6 @@ function create_matrix(n_rows, n_cols, default_val){
 	}
 	return mat
 }
-
-var selected_values = create_matrix(N, M, false)
-var letters_table = create_matrix(N, M, 0)
 
 function may_put_the_number(table, i, j, nrows, ncols, horizontally, str_num){
 	word_size = str_num.length
@@ -91,7 +97,7 @@ function put_random_number_on_table(table, nrows, ncols){
 			was_inserted = num
 		}
 	}
-	return {i: i, j: j, vertically: (1 == b), num: was_inserted}
+	return {i: i, j: j, horizontally: (1 == b), num: was_inserted}
 }
 
 function random_letter(){
@@ -171,6 +177,74 @@ function create_html_table(char_table, n, m){
 	document.getElementById("div_table").innerHTML = s;
 }
 
+function verify_if_number_is_selected(i, j, horizontally, str_num){
+	var word_size = str_num.length
+	var ok = true
+	if (horizontally){
+		for (k = j; k < j+word_size; k++)
+			if (!selected_values[i][k]){
+				ok = false
+				break
+			}
+
+		if (ok)
+			color = "green"
+		else
+			color = "red"
+		for (k = j; k < j+word_size; k++){
+			cell = document.getElementById(i + "_" + k)
+			cell.style.color = color
+			cell.style.fontWeight = "bold"
+		}
+	}else{ // vertically
+		for (k = i; k < i+word_size; k++)
+			if (!selected_values[k][j]){
+				ok = false
+				break
+			}
+
+		if (ok)
+			color = "green"
+		else
+			color = "red"
+		for (k = i; k < i+word_size; k++){
+			cell = document.getElementById(k + "_" + j)
+			cell.style.color = color
+			cell.style.fontWeight = "bold"
+		}
+	}
+	return ok
+}
+
+function verify_table(){
+	var ok = true
+	for (i = 0; i < inserted_numbers.length; i++){
+		h = inserted_numbers[i]
+		_ok = verify_if_number_is_selected(h.i, h.j, h.horizontally, numbers[h.num])
+		ok = ok && _ok
+	}
+	console.log(selected_values)
+	for (i = 0; i < N; i++){
+		for (j = 0; j < M; j++){
+			if (selected_values[i][j]){ // if some wrong cell was selected
+				cell = document.getElementById(i + "_" + j)
+				if (cell.style.fontWeight != "bold"){
+					cell.style.color = "red"
+					cell.style.fontWeight = "bold"
+					ok = false
+				}
+			}
+		}
+	}
+	if (ok){
+		document.getElementById("feedback_positive").style.visibility = "visible";
+		document.getElementById("feedback_positive").innerHTML = "<p> Très bien ! C'est correct ! </p>"
+	}else{
+		document.getElementById("feedback_negative").style.visibility = "visible";
+		document.getElementById("feedback_negative").innerHTML = "<p> Faux ! Vérifiez la réponse s'il vous plaît. </p>"
+	}
+}
+
 </script>
 
 	</head>
@@ -181,9 +255,8 @@ function create_html_table(char_table, n, m){
 			</div>
 			<div class="nav-bar">
 				<ul class="nav">
-					<li><a href="#">Nav item 1</a></li>
-					<li><a href="#">Nav item 2</a></li>
-					<li><a href="#">Nav item 3</a></li>
+					<li><a href="write_the_number.html">Écrivez le nombre</a></li>
+					<li><a href="#">Cherchez le nombre</a></li>
 				</ul>
 			</div>
 			<div class="content">
@@ -196,16 +269,20 @@ function create_html_table(char_table, n, m){
 					<div id="chosen_numbers">
 						<b> Trouvez les nombres suivants: </b>
 					</div>
-					<div id="feedback_negative" style="background-color:Crimson; color:white; width:450px; padding:5px;visibility:hidden; margin:5px">
-					</div>
-					
-					<div id="div_table" style="font-size:10pt; padding:5px; margin:5px">
+				
+					<div id="div_table" style="font-size:10pt; padding:5px; margin:2px">
 					</div>
 
 					<p>
+					<div id="feedback_positive" style="background-color:LightGreen; color:black; width:450px; padding:5px;visibility:hidden;">
+					</div>
+			
+					<div id="feedback_negative" style="background-color:Crimson; color:white; width:450px; padding:5px;visibility:hidden;">
+					</div>
 					<button href="#" class="btn" onclick="location.reload();">Nouveau</button>
-					<button href="#" class="btn" onclick="alert('not implemented yet')">Vérifier</button></p>
+					<button href="#" class="btn" onclick="verify_table()">Vérifier</button></p>
 					<hr>
+	
 				</div>
 			</div>
 			<div class="footer">
@@ -214,12 +291,11 @@ function create_html_table(char_table, n, m){
 		</div>
 
 		<script>
-			inserted_numbers = []
 			div_numbers = document.getElementById("chosen_numbers")
 			for (var k = 0; k < 100 && inserted_numbers.length < 7; k++){
 				ins_num = put_random_number_on_table(letters_table, N, M)
 				if (-1 != ins_num.num){
-					inserted_numbers.push(ins_num.num)
+					inserted_numbers.push(ins_num)
 					div_numbers.innerHTML += ins_num.num + " | "
 				}
 			}

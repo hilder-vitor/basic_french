@@ -25,10 +25,18 @@ String.prototype.capitalize = function() {
 	return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
+function clean_message_boxes(){
+	document.getElementById("feedback_negative").style.visibility = "hidden";
+	document.getElementById("feedback_negative").innerHTML = "";
+	document.getElementById("feedback_positive").style.visibility = "hidden";
+	document.getElementById("feedback_positive").innerHTML = "";
+}
+
 function check_number_spelling(written_number, expected_number){
+	clean_message_boxes()
 	written_number = document.getElementById("typed_number").value;
 	// equal even if start by same letters but one in lowercase and other in uppercase
-	if (numbers[current_printed_number].capitalize() == written_number.capitalize()){
+	if (numbers[current_printed_number].toUpperCase() == written_number.toUpperCase()){
 		elt_feedback = document.getElementById("feedback_positive");
 		elt_feedback.style.visibility = "visible";
 		elt_feedback.innerHTML = "<p> Très bien ! C'est correct ! </p>";
@@ -40,11 +48,7 @@ function check_number_spelling(written_number, expected_number){
 }
 
 function print_new_challeng(){
-	document.getElementById("feedback_negative").style.visibility = "hidden";
-	document.getElementById("feedback_negative").innerHTML = "";
-	document.getElementById("feedback_positive").style.visibility = "hidden";
-	document.getElementById("feedback_positive").innerHTML = "";
-
+	clean_message_boxes()
 	current_printed_number = Math.floor(Math.random() * 103);
 	document.getElementById("numberOrdinal").innerHTML = current_printed_number;
 }
@@ -59,9 +63,8 @@ function print_new_challeng(){
 			</div>
 			<div class="nav-bar">
 				<ul class="nav">
-					<li><a href="#">Nav item 1</a></li>
-					<li><a href="#">Nav item 2</a></li>
-					<li><a href="#">Nav item 3</a></li>
+					<li><a href="#">Écrivez le nombre</a></li>
+					<li><a href="cherchez_les_nombres.html">Cherchez le nombre</a></li>
 				</ul>
 			</div>
 			<div class="content">
